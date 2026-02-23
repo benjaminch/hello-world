@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push
 
 on:
   push:
@@ -58,3 +58,32 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  helm-publish:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
+
+      - name: Extract chart version
+        id: chart_version
+        run: |
+          VERSION=$(grep '^version:' helm/hello-world/Chart.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Package Helm chart
+        run: helm package helm/hello-world --destination /tmp/helm-charts
+
+      - name: Push Helm chart to GHCR
+        run: helm push /tmp/helm-charts/hello-world-${{ steps.chart_version.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}
