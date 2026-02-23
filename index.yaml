@@ -3,12 +3,12 @@ entries:
   hello-world:
   - apiVersion: v2
     appVersion: latest
-    created: "2026-02-23T18:05:58.900821512Z"
+    created: "2026-02-23T18:13:55.985411443Z"
     description: A simple Rust hello world HTTP app
-    digest: 5e27a0e355ee50cfdf21f7a33f9ac760555dd932daea84338f7862d37dbbfae8
+    digest: f4f17b8dca8f9cfe73f0013aef4260e612182b3dc69474151b58f917fa2bc382
     name: hello-world
     type: application
     urls:
     - https://benjaminch.github.io/hello-world/hello-world-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-23T18:05:58.900441754Z"
+generated: "2026-02-23T18:13:55.985058403Z"
