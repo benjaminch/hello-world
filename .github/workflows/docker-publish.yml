@@ -63,8 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     permissions:
-      contents: read
-      packages: write
+      contents: write
+      pages: write
 
     steps:
       - name: Checkout repository
@@ -73,17 +73,26 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
-
-      - name: Extract chart version
-        id: chart_version
-        run: |
-          VERSION=$(grep '^version:' helm/hello-world/Chart.yaml | awk '{print $2}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Package Helm chart
         run: helm package helm/hello-world --destination /tmp/helm-charts
 
-      - name: Push Helm chart to GHCR
-        run: helm push /tmp/helm-charts/hello-world-${{ steps.chart_version.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Helm repo index
+        run: |
+          cp /tmp/helm-charts/*.tgz gh-pages/
+          helm repo index gh-pages/ --url https://benjaminch.github.io/hello-world
+
+      - name: Commit and push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "benjaminch"
+          git config user.email "benjamin.chastanier@gmail.com"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: update Helm chart repo"
+          git push
