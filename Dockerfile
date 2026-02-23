@@ -15,6 +15,6 @@ RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/
 WORKDIR /app
 COPY --from=builder /app/target/release/hello-world ./hello-world
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["./hello-world"]

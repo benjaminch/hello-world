@@ -11,8 +11,8 @@ fn parse_host_header(request: &str) -> Option<&str> {
 }
 
 fn main() {
-    let listener = TcpListener::bind("0.0.0.0:8080").expect("Failed to bind to port 8080");
-    println!("Listening on port 8080...");
+    let listener = TcpListener::bind("0.0.0.0:80").expect("Failed to bind to port 80");
+    println!("Listening on port 80...");
 
     for stream in listener.incoming() {
         match stream {
